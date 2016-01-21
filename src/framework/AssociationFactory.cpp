@@ -142,7 +142,12 @@ throw(framework::Exception)
 {
 	LogEnterExit logging(__FILE__, __FUNCTION__, __LINE__);
 	checkAttributes(attributes);
-	return new Instance(path);
+	wbem::framework::Instance *pInstance = new Instance(path);
+	if (pInstance)
+	{
+		markInstanceAttributesAsAssociationRefs(*pInstance);
+	}
+	return pInstance;
 }
 
 /*
@@ -269,4 +274,26 @@ void wbem::framework::AssociationFactory::addAssociationToTable(const std::strin
 								   antecedentClass, dependentClass,
 								   antecedentFk, dependentFk};
 	m_associationTable.push_back(assoc);
+}
+
+void wbem::framework::AssociationFactory::markInstanceAttributesAsAssociationRefs(
+		framework::Instance& instance)
+{
+	LogEnterExit logging(__FILE__, __FUNCTION__, __LINE__);
+
+	attributes_t updatedAttributes;
+
+	// need a mutable copy
+	for (attributes_t::const_iterator oldAttrIter = instance.attributesBegin();
+			oldAttrIter != instance.attributesEnd(); oldAttrIter++)
+	{
+		updatedAttributes[oldAttrIter->first] = oldAttrIter->second;
+	}
+
+	for (attributes_t::iterator attrIter = updatedAttributes.begin();
+			attrIter != updatedAttributes.end(); attrIter++)
+	{
+		attrIter->second.setIsAssociationClassInstance(true);
+		instance.setAttribute(attrIter->first, attrIter->second);
+	}
 }
