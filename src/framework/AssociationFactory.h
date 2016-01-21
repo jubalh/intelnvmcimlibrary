@@ -201,7 +201,7 @@ protected:
 			const std::string &antecedentClass, const std::string &dependentClass,
 			const std::string &antecedentFk = "", const std::string &dependentFk = "");
 
-
+	void markInstanceAttributesAsAssociationRefs(framework::Instance &instance);
 
 };
 }

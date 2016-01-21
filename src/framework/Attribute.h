@@ -94,6 +94,8 @@ class Attribute
 		 */
 		Attribute() :
 			m_IsKey(false),
+			m_IsEmbedded(false),
+			m_IsAssociationClassInstance(false),
 			m_Type(BOOLEAN_T)
 		{};
 
