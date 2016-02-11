@@ -211,4 +211,21 @@ uninstall :
 	$(RM) $(LIB_FILES)
 	$(RMDIR) $(FRAMEWORK_INCLUDE_DIR)
 
-.PHONY : all clean clobber qb_standard copy_headers install uninstall
+rpm :
+	#Make the Directories
+	$(MKDIR) $(RPMBUILD_DIR) $(RPMBUILD_DIR)/BUILD $(RPMBUILD_DIR)/SOURCES $(RPMBUILD_DIR)/RPMS \
+				$(RPMBUILD_DIR)/SRPMS $(RPMBUILD_DIR)/SPECS $(RPMBUILD_DIR)/BUILDROOT \
+				$(RPMBUILD_DIR)/BUILD/intel_cim_framework
+	
+	#Copy Spec File
+	$(COPY) install/linux/$(LINUX_DIST)-release/*.spec $(RPMBUILD_DIR)/SPECS/intel_cim_framework.spec
+	#Update the Spec file
+	$(SED) -i 's/^%define rpm_name .*/%define rpm_name intel_cim_framework/g' $(RPMBUILD_DIR)/SPECS/intel_cim_framework.spec
+	$(SED) -i 's/^%define build_version .*/%define build_version $(BUILDNUM)/g' $(RPMBUILD_DIR)/SPECS/intel_cim_framework.spec
+	
+	#Archive the directory
+	git archive --format=tar --prefix="intel_cim_framework/" HEAD | bzip2 -c > $(RPMBUILD_DIR)/SOURCES/intel_cim_framework.tar.bz2
+	#rpmbuild 
+	$(RPMBUILD) -ba $(RPMBUILD_DIR)/SPECS/intel_cim_framework.spec --define "_topdir $(RPMBUILD_DIR)" 
+	
+.PHONY : all clean clobber qb_standard copy_headers install uninstall rpm

@@ -41,6 +41,9 @@ MOVE = mv
 MKDIR = mkdir -p
 RMDIR = rm -rf
 SOFTLINK = ln -s -f 
+SED = sed
+TAR = tar
+RPMBUILD = rpmbuild
 
 # useful makefile debugging tools
 # It's a hack, but it does the job! To unpause, simply hit the [ENTER] key.
@@ -56,7 +59,10 @@ BLDMK_SPACE = $(BLDMK_EMPTY) $(BLDMK_EMPTY)
 
 # version number passed in from the build server
 ifndef BUILDNUM
-	BUILDNUM=99.99.99.9999
+	BUILDNUM= $(shell git describe --abbrev=0 | sed -e 's/\([a-zA-Z_-]*\)\(.*\)/\2/g')
+	ifeq ($(strip $(BUILDNUM)),)
+		BUILDNUM=99.99.99.9999
+	endif
 endif
 
 # parse into individual pieces
@@ -127,6 +133,14 @@ ifeq ($(UNAME), Linux)
 
 		C_CPP_FLAGS_CMN += -fPIC
 		C_CPP_FLAGS_SRC += -D__LINUX__
+			
+		ifneq ("$(wildcard /etc/redhat-release)","")
+			LINUX_DIST := rel
+		else ifneq ("$(wildcard /etc/SuSE-release)","")
+			LINUX_DIST := sle
+		else
+			LINUX_DIST := $(warning Unrecognized Linux distribution)
+		endif
 	endif		
 else
 	BUILD_WINDOWS = 1
@@ -185,6 +199,7 @@ EXTERN_LIB_DIR = $(EXTERN_DIR)/precompiled_libs/$(OS_TYPE)
 OBJECT_DIR = $(OUTPUT_DIR)/obj/$(OS_TYPE)/$(BUILD_TYPE)
 BUILD_DIR = $(OUTPUT_DIR)/build/$(OS_TYPE)/$(BUILD_TYPE)
 SOURCEDROP_DIR ?= $(OUTPUT_DIR)/workspace/intelcimframework
+RPMBUILD_DIR ?= $(shell pwd)/$(OUTPUT_DIR)/rpmbuild
 
 # memory leak tool (changes default unittest to run leak checks)
 ifdef MEMCHK
