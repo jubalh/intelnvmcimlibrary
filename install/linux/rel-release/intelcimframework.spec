@@ -7,7 +7,7 @@ Name:           %{rpm_name}-libs
 Version:		%{build_version}
 Release:		%{build_release}%{?dist}
 Summary:		Framework for Intel Storage CIM Binaries
-License:        Proprietary
+License:        BSD
 Group:          Development/Libraries
 URL:			http://www.intel.com
 Source:         %{rpm_name}.tar.bz2
@@ -19,7 +19,7 @@ Framework libraries for the Intel Storage CIM binaries
 
 %package -n %dname
 Summary:        Development files for %{name}
-License:        Proprietary
+License:        BSD
 Group:          Development/Libraries
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 
@@ -43,11 +43,13 @@ make install RELEASE=1 RPM_ROOT=%{buildroot} LIB_DIR=%{_libdir} INCLUDE_DIR=%{_i
 %files
 %defattr(-,root,root)
 %{_libdir}/libcimframework.so.*
+%license LICENSE
 
 %files -n %dname
 %defattr(-,root,root)
 %{_libdir}/libcimframework.so
 %{_includedir}/intel_cim_framework
+%license LICENSE
 
 %changelog
 * Wed Dec 24 2015 nicholas.w.moulin@intel.com
