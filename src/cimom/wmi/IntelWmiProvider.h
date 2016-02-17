@@ -500,6 +500,12 @@ private:
 	HRESULT STDMETHODCALLTYPE AttributeToVariant(wbem::framework::Attribute &atttribute,
 			VARIANT &v);
 
+	void addMethodReturnCodeToReturnObject(
+			const char *className, const BSTR strMethodName, IWbemContext *pContext,
+			IWbemObjectSink *pResponseHandler, wbem::framework::UINT32 &wbemRc);
+
+	HRESULT convertHttpRcToWmiRc(wbem::framework::UINT32 httpRc);
+
 	template <class T>
 	SAFEARRAY *ListToSafeArray(const std::vector<T> &list);
 

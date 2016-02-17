@@ -129,6 +129,17 @@ public:
 	 * 		E_OUTOFMEMORY, E_UNEXPECTED, E_FAIL, and S_OK.
 	 */
 	STDMETHODIMP LockServer(BOOL fLock);
+
+	/*!
+	 * Determine if the library can be unloaded.
+	 * @details
+	 * 		The framework maintains a lock and a count of active objects that are needed
+	 *		 to determine if the DLL can be unloaded by OLE. This method is called from
+	 * 		the product code to see if the library can be unloaded.
+	 * @return
+	 * 		This method can return S_OK or S_FALSE.
+	 */
+	static SCODE CimFrameworkDLLCanUnloadNow(void);
 };
 }
 }

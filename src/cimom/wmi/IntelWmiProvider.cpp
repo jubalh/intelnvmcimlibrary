@@ -437,6 +437,69 @@ SCODE wbem::wmi::IntelWmiProvider::GetByPath
 	return rc;
 }
 
+void wbem::wmi::IntelWmiProvider::addMethodReturnCodeToReturnObject(
+		const char *className, const BSTR strMethodName, IWbemContext *pContext,
+		IWbemObjectSink *pResponseHandler, wbem::framework::UINT32 &wbemRc)
+{
+	// Need output argument class to put the method result into
+	// First, get the class instance
+	IWbemClassObject * pClass = NULL;
+	m_pNamespace->GetObject(_com_util::ConvertStringToBSTR(className), 0, pContext, &pClass, NULL);
+
+	// Get an instance for the output parameters class
+	IWbemClassObject * pOutClass = NULL;
+	pClass->GetMethod(strMethodName, 0, NULL, &pOutClass);
+
+	// Get an instance for the actual output parameters
+	IWbemClassObject* pOutParams;
+	pOutClass->SpawnInstance(0, &pOutParams);
+
+	// build the VARIANT that will represent the "ReturnValue" of the method. Will always be a CIM_UINT32
+	VARIANT var;
+	VariantInit(&var);
+	VariantClear(&var);
+	var.vt = VT_I4;
+	var.lVal = (long)wbemRc;
+	BSTR retValName = SysAllocString(L"ReturnValue");
+
+	// add to output parameters
+	pOutParams->Put(retValName , 0, &var, CIM_UINT32);
+
+	// indicate output parameters
+	pResponseHandler->Indicate(1, &pOutParams);
+
+	// Clean up
+	pOutParams->Release();
+	pOutClass->Release();
+	pClass->Release();
+	SysFreeString(retValName);
+}
+
+HRESULT wbem::wmi::IntelWmiProvider::convertHttpRcToWmiRc(wbem::framework::UINT32 httpRc)
+{
+	HRESULT rc = WBEM_NO_ERROR;
+	// Of course WMI is different than the CIM standard for error codes so do the mapping
+	switch (httpRc)
+	{
+		case wbem::framework::MOF_ERR_SUCCESS:
+			rc = WBEM_NO_ERROR;
+			break;
+		case wbem::framework::CIM_ERR_FAILED:
+			rc = WBEM_E_FAILED;
+			break;
+		case wbem::framework::CIM_ERR_NOTSUPPORTED:
+			rc = WBEM_E_NOT_SUPPORTED;
+			break;
+		case wbem::framework::CIM_ERR_INVALID_PARAMETER:
+			rc = WBEM_E_INVALID_PARAMETER;
+			break;
+		case wbem::framework::CIM_ERR_METHOD_NOT_AVAILABLE:
+			rc = WBEM_E_INVALID_METHOD;
+			break;
+	}
+	return rc;
+}
+
 /*
  * Entry point for Invoke method
  * http://msdn.microsoft.com/en-us/library/aa392104(v=vs.85).aspx
@@ -454,7 +517,9 @@ HRESULT wbem::wmi::IntelWmiProvider::ExecMethodAsync(const BSTR strObjectPath,
 
 	framework::ObjectPath objectPath; // use the object path to get the class name
 	IntelToWmi::BstrToObjectPath(strObjectPath, &objectPath);
+	const char *className = objectPath.getClass().c_str();
 	COMMON_LOG_DEBUG_F("ObjectPath Class: %s", objectPath.getClass().c_str());
+
 	char *methodName = _com_util::ConvertBSTRToString(strMethodName);
 	if (NULL == methodName)
 	{
@@ -514,65 +579,10 @@ HRESULT wbem::wmi::IntelWmiProvider::ExecMethodAsync(const BSTR strObjectPath,
 						inAttributes, outAttributes);
 			delete[] methodName;
 
-			// http errors trump wbem errors
-			wbem::framework::UINT32 tmpRc = httpRc !=
-				wbem::framework::MOF_ERR_SUCCESS ? httpRc : wbemRc;
-
 			// Of course WMI is different than the CIM standard for error codes so do the mapping
-			switch (tmpRc)
-			{
-				case wbem::framework::MOF_ERR_SUCCESS:
-					rc = WBEM_NO_ERROR;
-					break;
-				case wbem::framework::MOF_ERR_UNKNOWN:
-					rc = WBEM_E_FAILED;
-					break;
-				case wbem::framework::MOF_ERR_FAILED:
-					rc = WBEM_E_FAILED;
-					break;
-				case wbem::framework::MOF_ERR_NOTALLOWED:
-					rc = WBEM_E_METHOD_NOT_IMPLEMENTED;
-					break;
+			rc = convertHttpRcToWmiRc(httpRc);
 
-				case wbem::framework::MOF_ERR_NOTSUPPORTED:
-					rc = WBEM_E_NOT_SUPPORTED;
-					break;
-
-				case wbem::framework::MOF_ERR_INVALIDPARAMETER:
-					rc = WBEM_E_INVALID_PARAMETER;
-					break;
-
-				case wbem::framework::MOF_ERR_VALIDATE_ONLY_NOT_SUPPORTED:
-					rc = WBEM_E_NOT_SUPPORTED;
-					break;
-
-				case wbem::framework::MOF_ERR_POSSIBLE_CONFIG_WS_NOT_SUPPORTED:
-					rc = WBEM_E_NOT_SUPPORTED;
-					break;
-
-				case wbem::framework::MOF_ERR_RUNNING_CURR_CONFIG_NOT_SUPPORTED:
-					rc = WBEM_E_NOT_SUPPORTED;
-					break;
-
-				case wbem::framework::MOF_ERR_INUSE:
-					rc = WBEM_E_ACCESS_DENIED;
-					break;
-
-				case wbem::framework::MOF_ERR_INVALID_ELEMENTSIZE:
-					rc = WBEM_E_INVALID_PARAMETER;
-					break;
-
-				case wbem::framework::CIM_ERR_INVALID_PARAMETER:
-					rc = WBEM_E_INVALID_PARAMETER;
-					break;
-
-				case wbem::framework::CIM_ERR_METHOD_NOT_AVAILABLE:
-					rc = WBEM_E_INVALID_METHOD;
-					break;
-			}
-
-			// Not sure how the outAttributes are passed back to WMI (or if it's possible). Not sure
-			// if this is needed so deferring exploration to when it is needed.
+			addMethodReturnCodeToReturnObject(className, strMethodName, pContext, pResponseHandler, wbemRc);
 		}
 		else
 		{

@@ -153,4 +153,8 @@ STDMETHODIMP wbem::wmi::IntelWmiProviderFactory::LockServer(BOOL fLock)
 	return NOERROR;
 }
 
-
+// Called from the product side when Ole tries to determine if the DLL can be freed
+SCODE wbem::wmi::IntelWmiProviderFactory::CimFrameworkDLLCanUnloadNow(void)
+{
+	return DllCanUnloadNow();
+}

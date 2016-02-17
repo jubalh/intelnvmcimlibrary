@@ -49,117 +49,16 @@ namespace framework
  */
 
 /*!
- * Common MOF return code indicating the method succeeded.
+ * Common CIM return code indicating the method succeeded.
  */
 static const wbem::framework::UINT32 MOF_ERR_SUCCESS = 0;
 
 /*!
- * Common MOF error code indicating that an unknown error occurred.
+ * HTTP error code indicating that the CIMOM was unable to invoke the method.
+ * @remarks HTTP return value used by our providers. The names and
+ * values match those used in CIM Operations over HTTP.
  */
-static const wbem::framework::UINT32 MOF_ERR_UNKNOWN = 1;
-
-/*!
- * Common MOF error code indicating that the method failed.
- */
-static const wbem::framework::UINT32 MOF_ERR_FAILED = 2;
-
-/*!
- * MOF error code indicating that the device, driver or other failed
- */
-static const wbem::framework::UINT32 MOF_ERR_DEVICEFAILED = 4;
-
-/*!
- * Common MOF error code indicating that the method is not allowed given
- * the current state.
- */
-static const wbem::framework::UINT32 MOF_ERR_NOTALLOWED = 3;
-
-/*!
- * Common MOF error code indicating that the method is not supported
- * in the current context.
- */
-static const wbem::framework::UINT32 MOF_ERR_NOTSUPPORTED = 7;
-
-/*!
- * Common MOF error code indicating that one or more input parameters
- * are invalid.
- */
-static const wbem::framework::UINT32 MOF_ERR_INVALIDPARAMETER = 5;
-
-/*!
- * WBEM error code indicating validate only is not supported.
- * @remarks Used in FactoryConfiguration, ApplyConfiguration
- */
-static const wbem::framework::UINT32 MOF_ERR_VALIDATE_ONLY_NOT_SUPPORTED = 16000;
-
-/*!
- * WBEM error code indicating ...
- * @remarks Used in FactoryConfiguration, ApplyConfiguration
- */
-static const wbem::framework::UINT32 MOF_ERR_POSSIBLE_CONFIG_WS_NOT_SUPPORTED = 16003;
-
-/*!
- * WBEM error code indicating ...
- * @remarks Used in FactoryConfiguration, ApplyConfiguration
- */
-static const wbem::framework::UINT32 MOF_ERR_RUNNING_CURR_CONFIG_NOT_SUPPORTED = 16004;
-
-/*!
- * WBEM error code indicating that the object is busy.
- * @remarks Used in createOrModifyElementFromStoragePool, installFromURI
- */
-static const wbem::framework::UINT32 MOF_ERR_INUSE = 6;
-
-/*!
- * WBEM error code indicating that the specified target is invalid.
- * @remarks Used in installFromURI
- */
-static const wbem::framework::UINT32 MOF_ERR_UNSUPPORTED_TARGET_TYPE = 4097;
-
-/*!
- * WBEM error code indicating that the specified element size is invalid.
- * @remarks Used in createOrModifyElementFromStoragePool
- */
-static const wbem::framework::UINT32 MOF_ERR_INVALID_ELEMENTSIZE = 4098;
-
-/*!
- * WBEM error code indicating that there was not enough memory to complete the action.
- */
-static const wbem::framework::UINT32 MOF_ERR_NOT_ENOUGH_MEMORY = 4100;
-
-/*!
- * WBEM error code indicating that the specified URI is not accessible.
- * @remarks Used in installFromURI
- */
-static const wbem::framework::UINT32 MOF_ERR_URI_NOT_ACCESSIBLE = 4107;
-
-/*!
- * WBEM error code indicating that Downgrade/reinstall is not supported
- * @remarks Used in installFromURI
- */
-static const wbem::framework::UINT32 MOF_ERR_DOWNGRADE_NOT_SUPPORTED = 4099;
-
-/*!
- * WBEM error code indicating that the given operation or file is not applicable to the given
- * target.
- * @remarks Used in installFromURI
- */
-static const wbem::framework::UINT32 MOF_ERR_NOT_APPLICABLE_TO_TARGET = 4106;
-
-/*!
- * WBEM error code for a permission related failure of some kind
- */
-static const wbem::framework::UINT32 MOF_ERR_PERMISSIONFAILURE = 32768;
-
-/*!
- * WBEM error code indicating that the device was not in the right security state, not manageable, etc
- */
-static const wbem::framework::UINT32 MOF_ERR_BADSTATE = 32769;
-
-/*!
- * WBEM error code indicating an unsupported filter value was entered
- */
-static const wbem::framework::UINT32 MOF_ERR_UNSUPPORTEDFILTER = 32770;
+static const wbem::framework::UINT32 CIM_ERR_FAILED = 1;
 
 /*!
  * HTTP error code indicating one or more input parameters are invalid.
@@ -169,7 +68,14 @@ static const wbem::framework::UINT32 MOF_ERR_UNSUPPORTEDFILTER = 32770;
 static const wbem::framework::UINT32 CIM_ERR_INVALID_PARAMETER = 4;
 
 /*!
- * HTTP error code indicating that method is not supported or available.
+ * HTTP error code indicating that method is not supported.
+ * @remarks HTTP return value used by our providers. The names and
+ * values match those used in CIM Operations over HTTP.
+ */
+static const wbem::framework::UINT32 CIM_ERR_NOTSUPPORTED = 7;
+
+/*!
+ * HTTP error code indicating that method is not available.
  * @remarks HTTP return value used by our providers. The names and
  * values match those used in CIM Operations over HTTP.
  */
