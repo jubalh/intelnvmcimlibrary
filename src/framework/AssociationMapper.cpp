@@ -189,8 +189,8 @@ throw(Exception)
 		bool assocClassFilter = m_associationClassName.empty() ||
 								m_associationClassName == association.associationClassName;
 
-		bool resultClassFilter = resultClassEmptyOrMatches(association, instanceIsAnt,
-			instanceIsDep);
+		bool resultClassFilter = resultClassEmptyOrMatches(association, instanceIsAntOrNull,
+			instanceIsDepOrNull);
 
 		bool roleFilter = (m_roleName.empty() ||
 						   (instanceIsAntOrNull &&

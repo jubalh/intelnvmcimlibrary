@@ -36,6 +36,7 @@
 #define WBEM_FRAMEWORK_PROVIDERFACTORY_H_
 
 #include <string>
+#include <vector>
 #include "InstanceFactory.h"
 #include "AssociationFactory.h"
 #include "IndicationService.h"
@@ -74,10 +75,11 @@ public:
 	static InstanceFactory *getInstanceFactoryStatic(const std::string &className);
 
 	/*
-	 * Gets the singleton and fetches the appropriate InstanceFactory for associations.
-	 * Returns NULL if either singleton or factory is NULL.
+	 * Gets the singleton and fetches the appropriate InstanceFactories for associations.
+	 * Returns empty list if either singleton or factory is NULL.
 	 */
-	static InstanceFactory *getAssociationFactoryStatic(Instance *pInstance,
+	static std::vector<InstanceFactory *> getAssociationFactoriesStatic(
+			Instance *pInstance,
 			const std::string &associationClassName,
 			const std::string &resultClassName,
 			const std::string &roleName,
@@ -90,13 +92,15 @@ public:
 	virtual InstanceFactory *getInstanceFactory(const std::string &className) = 0;
 
 	/*
-	 * Implement this method to return an appropriate AssociationFactory.
+	 * Implement this method to return an appropriate AssociationFactory list
+	 * for the request.
 	 */
-	virtual InstanceFactory *getAssociationFactory(Instance *pInstance,
-		const std::string &associationClassName,
-		const std::string &resultClassName,
-		const std::string &roleName,
-		const std::string &resultRoleName) = 0;
+	virtual std::vector<InstanceFactory *> getAssociationFactories(
+			Instance *pInstance,
+			const std::string &associationClassName,
+			const std::string &resultClassName,
+			const std::string &roleName,
+			const std::string &resultRoleName) = 0;
 
 	virtual IndicationService *getIndicationService() = 0;
 

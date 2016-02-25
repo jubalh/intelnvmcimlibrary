@@ -253,38 +253,55 @@ wbem::framework::instances_t* wbem::framework::InstanceFactory::associatorInstan
 
 	attribute_names_t attributes;
 	Instance *pInstance = getInstance(objectPath, attributes);
-	InstanceFactory *pAssociationFactory = ProviderFactory::getAssociationFactoryStatic(pInstance,
+	std::vector<InstanceFactory *> associationFactories = ProviderFactory::getAssociationFactoriesStatic(
+			pInstance,
 			associationClassName, resultClassName, roleName, resultRoleName);
-	if (pAssociationFactory)
+	COMMON_LOG_DEBUG_F("Got %u association factories", associationFactories.size());
+	while (!associationFactories.empty())
 	{
-		instance_names_t *pAssociationNames = pAssociationFactory->getInstanceNames();
-
-		instance_names_t::iterator iter = pAssociationNames->begin();
-		for(; iter != pAssociationNames->end(); iter++)
+		COMMON_LOG_DEBUG("Inspecting association factory...");
+		InstanceFactory *pAssociationFactory = associationFactories.back();
+		if (pAssociationFactory)
 		{
-			attributes_t keys = iter->getKeys();
-			attributes_t::iterator iKey = keys.begin();
-			for(; iKey != keys.end(); iKey++)
+			instance_names_t *pAssociationNames = pAssociationFactory->getInstanceNames();
+			COMMON_LOG_DEBUG_F("Got %u association names", pAssociationNames->size());
+
+			instance_names_t::iterator iter = pAssociationNames->begin();
+			for(; iter != pAssociationNames->end(); iter++)
 			{
-				ObjectPathBuilder builder(iKey->second.asStr());
-				ObjectPath associatedObjectPath;
-				builder.Build(&associatedObjectPath);
-				// don't list the instance as one of its own associators
-				if (associatedObjectPath.asString(true) != objectPath.asString(true))
+				attributes_t keys = iter->getKeys();
+				attributes_t::iterator iKey = keys.begin();
+				for(; iKey != keys.end(); iKey++)
 				{
-					InstanceFactory *pAssociatedFactory =
-							ProviderFactory::getInstanceFactoryStatic(associatedObjectPath.getClass());
-					if (pAssociatedFactory != NULL)
+					ObjectPathBuilder builder(iKey->second.asStr());
+					ObjectPath associatedObjectPath;
+					builder.Build(&associatedObjectPath);
+					// don't list the instance as one of its own associators
+					if (associatedObjectPath.asString(true) != objectPath.asString(true))
 					{
-						attribute_names_t attributes;
-						pInstances->push_back(*(pAssociatedFactory->getInstance(associatedObjectPath, attributes)));
-						delete pAssociatedFactory;
+						COMMON_LOG_DEBUG_F("Adding associator: %s",
+								associatedObjectPath.asString(true).c_str());
+						InstanceFactory *pAssociatedFactory =
+								ProviderFactory::getInstanceFactoryStatic(associatedObjectPath.getClass());
+						if (pAssociatedFactory != NULL)
+						{
+							attribute_names_t attributes;
+							wbem::framework::Instance *pAssociatedInstance = pAssociatedFactory->getInstance(
+									associatedObjectPath, attributes);
+							pInstances->push_back(*pAssociatedInstance);
+
+							delete pAssociatedInstance;
+							delete pAssociatedFactory;
+						}
 					}
 				}
 			}
+
+			delete pAssociationNames;
+			delete pAssociationFactory;
 		}
 
-		delete pAssociationFactory;
+		associationFactories.pop_back();
 	}
 
 	if (pInstance)
@@ -316,15 +333,20 @@ wbem::framework::instance_names_t *wbem::framework::InstanceFactory::referenceNa
 	wbem::framework::instance_names_t *pInstanceNames = NULL;
 
 	attribute_names_t attributes;
-	InstanceFactory *pAssociationFactory =
-			ProviderFactory::getAssociationFactoryStatic(getInstance(objectPath, attributes),
-					associationClassName, resultClassName, roleName, resultRoleName);
-
-	if (pAssociationFactory)
+	std::vector<InstanceFactory *> associationFactories = ProviderFactory::getAssociationFactoriesStatic(
+			getInstance(objectPath, attributes),
+			associationClassName, resultClassName, roleName, resultRoleName);
+	while (!associationFactories.empty())
 	{
-		pInstanceNames = pAssociationFactory->getInstanceNames();
+		InstanceFactory * pAssociationFactory = associationFactories.back();
+		if (pAssociationFactory)
+		{
+			pInstanceNames = pAssociationFactory->getInstanceNames();
 
-		delete pAssociationFactory;
+			delete pAssociationFactory;
+		}
+
+		associationFactories.pop_back();
 	}
 
 	return pInstanceNames;
@@ -350,15 +372,21 @@ wbem::framework::instances_t *wbem::framework::InstanceFactory::referenceInstanc
 	wbem::framework::instances_t *pInstances = NULL;
 
 	attribute_names_t attributesOne;
-	InstanceFactory *pAssociationFactory =
-				ProviderFactory::getAssociationFactoryStatic(getInstance(objectPath, attributesOne),
-						associationClassName, resultClassName, roleName, resultRoleName);
-	if (pAssociationFactory)
+	std::vector<InstanceFactory *> associationFactories = ProviderFactory::getAssociationFactoriesStatic(
+			getInstance(objectPath, attributesOne),
+			associationClassName, resultClassName, roleName, resultRoleName);
+	while (!associationFactories.empty())
 	{
-		attribute_names_t attributesTwo;
-		pInstances = pAssociationFactory->getInstances(attributesTwo);
+		InstanceFactory * pAssociationFactory = associationFactories.back();
+		if (pAssociationFactory)
+		{
+			attribute_names_t attributesTwo;
+			pInstances = pAssociationFactory->getInstances(attributesTwo);
 
-		delete pAssociationFactory;
+			delete pAssociationFactory;
+		}
+
+		associationFactories.pop_back();
 	}
 	return pInstances;
 }

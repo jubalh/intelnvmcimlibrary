@@ -94,22 +94,24 @@ InstanceFactory* wbem::framework::ProviderFactory::getInstanceFactoryStatic(
 	return pFactory;
 }
 
-InstanceFactory* ProviderFactory::getAssociationFactoryStatic(Instance *pInstance,
+std::vector<InstanceFactory *> ProviderFactory::getAssociationFactoriesStatic(
+		Instance *pInstance,
 		const std::string &associationClassName,
 		const std::string &resultClassName,
 		const std::string &roleName,
 		const std::string &resultRoleName)
 {
-	InstanceFactory *pFactory = NULL;
+	std::vector<InstanceFactory *> associationFactories;
 	ProviderFactory *pSingleton = ProviderFactory::getSingleton();
 	if (pSingleton)
 	{
-		pFactory = pSingleton->getAssociationFactory(pInstance,
+		associationFactories = pSingleton->getAssociationFactories(
+				pInstance,
 				associationClassName, resultClassName,
 				roleName, resultRoleName);
 	}
 
-	return pFactory;
+	return associationFactories;
 }
 
 

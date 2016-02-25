@@ -198,9 +198,8 @@ void intelToCmpi(const CMPIBroker *pBroker, wbem::framework::Attribute *pAttribu
 				CMPIInstance * cmpiEmbedded = intelToCmpi(pBroker, &embedded, pStatus);
 				pCmpiAttribute->value.inst = cmpiEmbedded;
 			}
-			// handles enumerating association classes in Pegasus
-			else if (pAttribute->isAssociationClassInstance() &&
-					(PEGASUS.compare(pBroker->bft->brokerName) == 0))
+			// handles enumerating association classes
+			else if (pAttribute->isAssociationClassInstance())
 			{
 				pCmpiAttribute->type = CMPI_ref;
 				wbem::framework::ObjectPathBuilder builder(pAttribute->stringValue());
