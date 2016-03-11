@@ -41,14 +41,13 @@ make install RELEASE=1 RPM_ROOT=%{buildroot} LIB_DIR=%{_libdir} INCLUDE_DIR=%{_i
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root)
-%{_libdir}/libcimframework.so.*
+%attr(755,root,root) %{_libdir}/libcimframework.so.*
 %license LICENSE
 
 %files -n %dname
-%defattr(-,root,root)
-%{_libdir}/libcimframework.so
-%{_includedir}/intel_cim_framework
+%attr(755,root,root) %{_libdir}/libcimframework.so
+%attr(755,root,root) %dir %{_includedir}/intel_cim_framework
+%attr(644,root,root) %{_includedir}/intel_cim_framework/*.h
 %license LICENSE
 
 %changelog
