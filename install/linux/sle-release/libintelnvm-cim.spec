@@ -1,9 +1,9 @@
-%define rpm_name intelcimframework
+%define rpm_name libintelnvm-cim
 %define build_version 99.99.99.9999
 %define build_release 1
-%define dname %{rpm_name}-devel
+%define dname lib%{rpm_name}-devel
 
-Name:           %{rpm_name}-libs
+Name:           %{rpm_name}
 Version:		%{build_version}
 Release:		%{build_release}%{?dist}
 Summary:		Framework for Intel Storage CIM Binaries
@@ -42,16 +42,16 @@ make install RELEASE=1 RPM_ROOT=%{buildroot} LIB_DIR=%{_libdir} INCLUDE_DIR=%{_i
 
 %files
 %defattr(755,root,root,755)
-%{_libdir}/libcimframework.so.*
+%{_libdir}/libintelnvm-cim.so.*
 %license LICENSE
 
 %files -n %dname
-%defattr(755,root,root,755)
-%{_libdir}/libcimframework.so
-%dir %{_includedir}/intel_cim_framework
-%attr(644,root,root) %{_includedir}/intel_cim_framework/*.h
+%defattr(755,root,root,755) 
+%{_libdir}/libintelnvm-cim.so
+%dir %{_includedir}/libintelnvm-cim
+%attr(644,root,root) %{_includedir}/libintelnvm-cim/*.h
 %license LICENSE
 
 %changelog
-* Wed Dec 24 2015 nicholas.w.moulin@intel.com
+* Wed Dec 24 2015 Nicholas Moulin <nicholas.w.moulin@intel.com>
 - Initial rpm release

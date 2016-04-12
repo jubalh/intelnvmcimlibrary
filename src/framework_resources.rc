@@ -59,9 +59,9 @@ BEGIN
 			VALUE "CompanyName", INTEL_COMPANY_NAME
 			VALUE "FileDescription", "Intel CIM Framework Library"
 			VALUE "FileVersion", VERSION_STR
-			VALUE "InternalName", "libcimframework.dll"
+			VALUE "InternalName", "libintelnvm-cim.dll"
 			VALUE "LegalCopyright", INTEL_COPYRIGHT_STRING
-			VALUE "OriginalFilename", "libcimframework.dll"
+			VALUE "OriginalFilename", "libintelnvm-cim.dll"
 			VALUE "ProductName", "Intel CIM Framework"
 			VALUE "ProductVersion", VERSION_STR
 		END

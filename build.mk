@@ -85,6 +85,10 @@ CPPFLAGS_CMN =
 
 EXE_SUFFIX =
 
+LIB_BASENAME=libintelnvm-cim
+HEADER_DIRECTORY=libintelnvm-cim
+LIB_NAME=intelnvm-cim
+
 # OS specific settings
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
@@ -198,7 +202,7 @@ endif
 EXTERN_LIB_DIR = $(EXTERN_DIR)/precompiled_libs/$(OS_TYPE)
 OBJECT_DIR = $(OUTPUT_DIR)/obj/$(OS_TYPE)/$(BUILD_TYPE)
 BUILD_DIR = $(OUTPUT_DIR)/build/$(OS_TYPE)/$(BUILD_TYPE)
-SOURCEDROP_DIR ?= $(OUTPUT_DIR)/workspace/intelcimframework
+SOURCEDROP_DIR ?= $(OUTPUT_DIR)/workspace/$(HEADER_DIRECTORY)
 RPMBUILD_DIR ?= $(shell pwd)/$(OUTPUT_DIR)/rpmbuild
 
 # memory leak tool (changes default unittest to run leak checks)

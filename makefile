@@ -59,7 +59,7 @@ CPP_MODULES = $(FRAMEWORK_DIR) $(CIMOM_DIR) $(COMMON_DIR)/logger
 C_MODULES = $(COMMON_DIR)/string $(COMMON_DIR)/time
 MODULES = $(CPP_MODULES) $(C_MODULES)
 
-BUILD_INCLUDE_DIR = $(BUILD_DIR)/include/intel_cim_framework
+BUILD_INCLUDE_DIR = $(BUILD_DIR)/include/$(HEADER_DIRECTORY)
 
 # ---- FILES ---------------------------------------------------------------------------------------
 CPP_SRC = $(foreach dir,$(CPP_MODULES),$(wildcard $(SRC_DIR)/$(dir)/*.cpp))
@@ -87,7 +87,7 @@ DEPENDENCIES = $(patsubst $(SRC_DIR)/%.c,%.d,$(CPP_DEPENDENCIES))
 -include $(addprefix $(OBJECT_DIR)/, $(DEPENDENCIES))
 
 # Target library 'linker name'
-TARGETBASE = libcimframework.$(LIB_SUFFIX)
+TARGETBASE = $(LIB_BASENAME).$(LIB_SUFFIX)
 # Target library 'soname'
 TARGETSO = $(TARGETBASE).$(VERSION_MAJOR)
 # Target library 'real name'
@@ -103,10 +103,10 @@ TARGETNAME = $(addprefix $(BUILD_DIR)/, $(TARGET))
 # Linux Install Files
 LIB_DIR ?= /usr/lib64
 # files that get installed into /usr/lib64
-LIB_FILES = libcimframework.so*
+LIB_FILES = $(LIB_BASENAME).so*
 INCLUDE_DIR ?= /usr/include
 # files that get installed into /usr/include/
-FRAMEWORK_INCLUDE_DIR = intel_cim_framework
+FRAMEWORK_INCLUDE_DIR = $(HEADER_DIRECTORY)
 
 # ---- COMPILER PARAMETERS -------------------------------------------------------------------------
 INCS = 	-I$(SRC_DIR) \
@@ -214,18 +214,17 @@ uninstall :
 rpm :
 	#Make the Directories
 	$(MKDIR) $(RPMBUILD_DIR) $(RPMBUILD_DIR)/BUILD $(RPMBUILD_DIR)/SOURCES $(RPMBUILD_DIR)/RPMS \
-				$(RPMBUILD_DIR)/SRPMS $(RPMBUILD_DIR)/SPECS $(RPMBUILD_DIR)/BUILDROOT \
-				$(RPMBUILD_DIR)/BUILD/intel_cim_framework
+	$(RPMBUILD_DIR)/SRPMS $(RPMBUILD_DIR)/SPECS $(RPMBUILD_DIR)/BUILDROOT \
+	$(RPMBUILD_DIR)/BUILD/$(LIB_BASENAME)
 	
 	#Copy Spec File
-	$(COPY) install/linux/$(LINUX_DIST)-release/*.spec $(RPMBUILD_DIR)/SPECS/intel_cim_framework.spec
+	$(COPY) install/linux/$(LINUX_DIST)-release/*.spec $(RPMBUILD_DIR)/SPECS/$(LIB_BASENAME).spec
 	#Update the Spec file
-	$(SED) -i 's/^%define rpm_name .*/%define rpm_name intel_cim_framework/g' $(RPMBUILD_DIR)/SPECS/intel_cim_framework.spec
-	$(SED) -i 's/^%define build_version .*/%define build_version $(BUILDNUM)/g' $(RPMBUILD_DIR)/SPECS/intel_cim_framework.spec
+	$(SED) -i 's/^%define build_version .*/%define build_version $(BUILDNUM)/g' $(RPMBUILD_DIR)/SPECS/$(LIB_BASENAME).spec
 	
 	#Archive the directory
-	git archive --format=tar --prefix="intel_cim_framework/" HEAD | bzip2 -c > $(RPMBUILD_DIR)/SOURCES/intel_cim_framework.tar.bz2
+	git archive --format=tar --prefix="$(LIB_BASENAME)/" HEAD | bzip2 -c > $(RPMBUILD_DIR)/SOURCES/$(LIB_BASENAME).tar.bz2
 	#rpmbuild 
-	$(RPMBUILD) -ba $(RPMBUILD_DIR)/SPECS/intel_cim_framework.spec --define "_topdir $(RPMBUILD_DIR)" 
+	$(RPMBUILD) -ba $(RPMBUILD_DIR)/SPECS/$(LIB_BASENAME).spec --define "_topdir $(RPMBUILD_DIR)" 
 	
 .PHONY : all clean clobber qb_standard copy_headers install uninstall rpm
